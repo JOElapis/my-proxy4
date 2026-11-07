@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>copy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .copy-button {
+      padding: 12px 24px;
+      font-size: 16px;
+      color: white;
+      background-color: #50b848;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .copy-button:hover {
+      background-color: #3d993a;
+    }
+    .copy-button:active {
+      transform: scale(0.98);
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Padletリンクをコピー</h2>
+  <p>https://padlet.com/hikari_5544/23gamespeople</p>
+  <button class="copy-button" onclick="copyLink()">リンクをコピー</button>
+  <div class="status" id="status"></div>
+
+  <script>
+    function copyLink() {
+      const url = "https://wcfbrrrrbgtfcw-j.onrender.com/";
+      navigator.clipboard.writeText(url).then(() => {
+        document.getElementById("status").textContent = "✅ リンクがクリップボードにコピーされました！";
+        setTimeout(() => {
+          document.getElementById("status").textContent = "";
+        }, 3000);
+      }).catch(err => {
+        console.error("コピーに失敗しました: ", err);
+        document.getElementById("status").textContent = "❌ コピーに失敗しました。";
+      });
+    }
+  </script>
+</body>
+</html>
