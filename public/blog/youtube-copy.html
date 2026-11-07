@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>hkr</title>
+  <style>
+    /* レトロ風フォントと背景 */
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      line-height: 1.8;
+      margin: 40px auto;
+      max-width: 700px;
+      padding: 20px;
+      border: 1px solid #00ff00;
+      box-shadow: 0 0 10px #00ff00;
+      text-shadow: 0 0 3px #00ff00;
+      overflow-x: hidden;
+    }
+
+    /* タイポグラフィの調整 */
+    h1, h2, h3 {
+      color: #00ccff;
+      text-shadow: 0 0 2px #00ccff;
+      border-bottom: 1px dashed #00ccff;
+      padding-bottom: 5px;
+    }
+
+    h1 { font-size: 2em; }
+    h2 { font-size: 1.6em; }
+    h3 { font-size: 1.3em; }
+
+    p {
+      margin-bottom: 1.5em;
+      text-align: justify;
+    }
+
+    /* コードブロック風引用（オプション） */
+    pre {
+      background-color: #001a00;
+      border-left: 4px solid #00cc00;
+      padding: 15px;
+      overflow-x: auto;
+      font-size: 0.9em;
+    }
+
+    /* リンクのレトロ表示 */
+    a {
+      color: #ff9900;
+      text-decoration: none;
+      border-bottom: 1px dotted #ff9900;
+    }
+    a:hover {
+      color: #ffffff;
+      text-shadow: 0 0 5px #ff9900;
+    }
+
+    /* スクロールバーのレトロカスタム（Windows風） */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #555;
+      border: 2px solid #00ff00;
+    }
+
+    /* フッターのテレタイプ風アニメーション */
+    footer {
+      margin-top: 40px;
+      font-size: 0.8em;
+      text-align: center;
+      opacity: 0.8;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <h1>YouTubeを自分で作る方法</h1>
+  <p>ども、黒木です。今回は<a href="/youtube">このYouTube</a>を自分で作成する方法です！やり方は数個あるので、安心してネ。</p>
+
+  <h2>1, Google Scriptをつかう</h2>
+  <p>おそらく、いっちばんやりやすい。GoogleアカウントがあればOK。なんか市とかに管理下に置かれてるやつでも大丈夫。<br><br>①下のコードの8行全部コピーする。<br><pre> 
+function doGet() {
+  const text = UrlFetchApp.fetch(
+    'https://gitlab.com/Hikari_5544-1/youtube/-/raw/main/%E3%81%97%E3%81%82tube/index.html'
+  ).getContentText();
+  return HtmlService.createHtmlOutput(text)
+                    .setTitle('YouTube')
+                    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}</pre>
+  <br><br>②で、<a href="https://script.google.com/home">ここを開いて、</a>グーグルスクリプトのホームに行くので、左の「+新しいプロジェクト」をクリックする。するとなんかデフォルトで4行ほど書かれてるから一旦全部消して、空白にする。で、さっきコピーしたコードをはりつけ、デプロイボタンを押す<br><br>③デプロイを押したら、3つ出てくるので、「新しいデプロイ」をクリック。で、なんかでてきたやつの左上の「種類の選択」の右にある⚙の設定ボタンを押す
+  <br><br>④4つ出てくるので、一番上の「ウェブアプリ」をクリック。説明文はなくてもいい。「次のユーザーとして実行」ってやつは「自分（〇〇@〇〇.ed.jpみたいな）」を選択。「アクセスできるユーザー」は、正直なんでもいいです。自分でも全員でも。<br><br>で、デプロイすると「アクセスを承認」ってボタンが出てくんので、承認してください。Allowってやつ。すると完成します。
+  <br><br>⑤あとはもう青リンクのURLをひらいたら自分だけのYouTubeが完成！ただ、これを他人(特にネット上)に公開する場合、URLの中にある<strong>自分のメールアドレスのドメインが書いてあるところを「gmail.com」に変更して</strong>ください。要するに、<a href="https://script.google.com/a/macros/gmail.com/s/AKfycbzgmg7i-49-ZCbN6930c721VVvkerElYo2cwjReeLTS1OAkEGDUqfLMxkExX-b1Z3JV/exec">こういう</a>ことですね。</p>
+
+  <h3>2, htmlCafeを使う</h3>
+  <p><a href="https://html.cafe/">https://html.cafe</a>これと<a href="https://gitlab.com/Hikari_5544-1/youtube/-/blob/main/%E3%81%97%E3%81%82tube/index.html?ref_type=heads">https://gitlab.com</a>をひらく。2個目のURLの右にある「履歴」の下にあるダウンロードボタンの2コ左にある四角が2コ重なってるアイコンをクリックするとコピーできるので、一個目のURLに飛び、一旦全部内容消してコピーしたやつを貼り付ける。<br>で、上のsaveを押すと隣に「Live↗」みたいなのが出てくるんで、おしたらつくれます！</p>
+
+
+  <footer>&gt;&gt; ロード中... 完了 [<a href="/">OK</a>] &lt;&lt;</footer>
+</body>
+</html>   
