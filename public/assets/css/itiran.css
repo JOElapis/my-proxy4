@@ -1,0 +1,84 @@
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #005a8d;
+    margin-bottom: 40px;
+}
+
+/* カードのグリッドレイアウト */
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* カード間の余白 */
+    justify-content: center; /* カードを中央に寄せる */
+}
+
+/* カード全体をリンクにするためのスタイル */
+.card-link {
+    text-decoration: none; /* 下線をなくす */
+    color: inherit;
+    flex: 1 1 calc(25% - 20px); /* 4列表示 */
+    min-width: 250px; /* カードの最小幅 */
+    box-sizing: border-box;
+}
+
+/* 画面幅に応じて列数を調整 */
+@media (max-width: 1200px) {
+    .card-link {
+        flex: 1 1 calc(33.333% - 20px); /* 3列表示 */
+    }
+}
+
+@media (max-width: 768px) {
+    .card-link {
+        flex: 1 1 calc(50% - 20px); /* 2列表示 */
+    }
+}
+
+@media (max-width: 480px) {
+    .card-link {
+        flex: 1 1 100%; /* 1列表示 */
+    }
+}
+
+/* 個々のカードのデザイン */
+.card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%; /* 高さ揃えのため */
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* ホバーで少し浮き上がる */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* ホバーで影を強調 */
+}
+
+.card-title {
+    color: #007bff;
+    margin-top: 0;
+    font-size: 1.25rem;
+}
+
+.card-description {
+    color: #666;
+    font-size: 0.9rem;
+    flex-grow: 1;
+}
