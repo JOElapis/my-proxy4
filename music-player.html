@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ミュージックプレイヤー</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
+    
+    body {
+      font-family: 'Kosugi Maru', sans-serif;
+      background: #222;
+      color: #eee;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #f8a55f;
+      text-shadow: 2px 2px 4px #000;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #333;
+      border: 2px solid #555;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #5c4033;
+      color: #f8a55f;
+      border: 1px solid #8b5a2b;
+      border-radius: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    button:hover {
+      background: #7d5b40;
+    }
+
+    .playlist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .track {
+      display: flex;
+      align-items: center;
+      background: #444;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #666;
+      position: relative;
+    }
+
+    .title {
+      flex: 1;
+      text-align: left;
+      font-weight: bold;
+      color: #f0c987;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-add {
+      background: #3a5f3a;
+      color: #c8e6c9;
+    }
+
+    .btn-move, .btn-delete {
+      background: #5f3a3a;
+      color: #ffcdd2;
+    }
+
+    .upload-btn {
+      margin: 10px 0;
+      padding: 8px 12px;
+      background: #4a4a4a;
+      border: 1px dashed #888;
+      border-radius: 4px;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    .upload-btn:hover {
+      background: #555;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .track {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-group {
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 ミュージックプレイヤー</h1>
+
+    <div class="controls">
+      <button id="playAll">▶️ 一括再生</button>
+      <button id="toggleLoop">🔁 ループ: OFF</button>
+    </div>
+
+    <ul id="playlist" class="playlist"></ul>
+
+    <button id="addTrack" class="btn-add">＋ 追加</button>
+  </div>
+
+  <script>
+    const playlistEl = document.getElementById('playlist');
+    const addTrackBtn = document.getElementById('addTrack');
+    const playAllBtn = document.getElementById('playAll');
+    const toggleLoopBtn = document.getElementById('toggleLoop');
+
+    let tracks = [];
+    let currentTrackIndex = -1;
+    let isLooping = false;
+    let userConfirmedRestore = false;
+
+    // ローカルストレージから復元確認
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('retro-player-tracks');
+      if (saved && !userConfirmedRestore) {
+        const confirmRestore = confirm('前回のプレイリストを復元しますか？');
+        if (confirmRestore) {
+          tracks = JSON.parse(saved);
+          renderPlaylist();
+        } else {
+          localStorage.removeItem('retro-player-tracks');
+        }
+      }
+    });
+
+    // トラック追加
+    function addTrack() {
+      const li = document.createElement('li');
+      li.className = 'track';
+      li.dataset.index = tracks.length;
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'title';
+      titleEl.textContent = '曲をアップロード';
+
+      const uploadBtn = document.createElement('div');
+      uploadBtn.className = 'upload-btn';
+      uploadBtn.textContent = '📁 音源をアップロード';
+      uploadBtn.onclick = () => uploadFile(li);
+
+      const audioEl = document.createElement('audio');
+      audioEl.controls = true;
+      audioEl.style.display = 'none';
+
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'btn-group';
+
+      const playBtn = document.createElement('button');
+      playBtn.textContent = '▶️';
+      playBtn.onclick = () => {
+        if (audioEl.src) {
+          document.querySelectorAll('audio').forEach(a => {
+            if (a !== audioEl) a.pause();
+          });
+          audioEl.play();
+        }
+      };
+
+      const moveUpBtn = document.createElement('button');
+      moveUpBtn.textContent = '⬆️';
+      moveUpBtn.className = 'btn-move';
+      moveUpBtn.onclick = () => moveTrack(li, -1);
+
+      const moveDownBtn = document.createElement('button');
+      moveDownBtn.textContent = '⬇️';
+      moveDownBtn.className = 'btn-move';
+      moveDownBtn.onclick = () => moveTrack(li, 1);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '❌';
+      deleteBtn.className = 'btn-delete';
+      deleteBtn.onclick = () => {
+        playlistEl.removeChild(li);
+        tracks = Array.from(document.querySelectorAll('.track')).map(t => {
+          const audio = t.querySelector('audio');
+          return {
+            file: audio.dataset.file || null,
+            name: audio.dataset.name || '曲をアップロード',
+            currentTime: audio.currentTime || 0
+          };
+        });
+        saveTracks();
+      };
+
+      btnGroup.append(playBtn, moveUpBtn, moveDownBtn, deleteBtn);
+      li.append(titleEl, uploadBtn, audioEl, btnGroup);
+      playlistEl.appendChild(li);
+
+      tracks.push({ file: null, name: '曲をアップロード', currentTime: 0 });
+      saveTracks();
+    }
+
+    // ファイルアップロード
+    function uploadFile(li, files) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = 'audio/mp3';
+      input.onchange = (e) => {
+        const newFiles = Array.from(e.target.files);
+        if (newFiles.length === 0) return;
+
+        const audioEl = li.querySelector('audio');
+        const titleEl = li.querySelector('.title');
+        const uploadBtn = li.querySelector('.upload-btn');
+
+        if (newFiles.length === 1) {
+          const file = newFiles[0];
+          const url = URL.createObjectURL(file);
+          audioEl.src = url;
+          audioEl.dataset.file = url;
+          audioEl.dataset.name = file.name;
+          titleEl.textContent = file.name;
+          uploadBtn.style.display = 'none';
+          audioEl.style.display = 'block';
+        } else {
+          // 複数アップロード → 下に追加
+          newFiles.sort((a, b) => a.name.localeCompare(b.name));
+          newFiles.forEach(file => {
+            const newLi = li.cloneNode(true);
+            const newAudio = newLi.querySelector('audio');
+            const newTitle = newLi.querySelector('.title');
+            const newUpload = newLi.querySelector('.upload-btn');
+
+            const url = URL.createObjectURL(file);
+            newAudio.src = url;
+            newAudio.dataset.file = url;
+            newAudio.dataset.name = file.name;
+            newTitle.textContent = file.name;
+            newUpload.style.display = 'none';
+            newAudio.style.display = 'block';
+
+            playlistEl.appendChild(newLi);
+            tracks.push({ file: url, name: file.name, currentTime: 0 });
+          });
+          playlistEl.removeChild(li);
+        }
+
+        saveTracks();
+      };
+      input.click();
+    }
+
+    // トラック移動
+    function moveTrack(li, dir) {
+      const items = Array.from(playlistEl.children);
+      const index = items.indexOf(li);
+      const targetIndex = index + dir;
+      if (targetIndex < 0 || targetIndex >= items.length) return;
+
+      playlistEl.insertBefore(li, items[targetIndex]);
+      saveTracks();
+    }
+
+    // 一括再生
+    playAllBtn.onclick = () => {
+      const audios = document.querySelectorAll('audio');
+      if (audios.length === 0) return;
+
+      currentTrackIndex = 0;
+      playNext();
+    };
+
+    function playNext() {
+      if (currentTrackIndex >= tracks.length) {
+        if (isLooping) {
+          currentTrackIndex = 0;
+          playNext();
+        }
+        return;
+      }
+
+      const li = document.querySelectorAll('.track')[currentTrackIndex];
+      const audio = li.querySelector('audio');
+      if (!audio.src) {
+        currentTrackIndex++;
+        playNext();
+        return;
+      }
+
+      audio.currentTime = tracks[currentTrackIndex].currentTime || 0;
+      audio.play();
+
+      audio.onended = () => {
+        currentTrackIndex++;
+        playNext();
+      };
+
+      audio.ontimeupdate = () => {
+        tracks[currentTrackIndex].currentTime = audio.currentTime;
+      };
+    }
+
+    // ループ切り替え
+    toggleLoopBtn.onclick = () => {
+      isLooping = !isLooping;
+      toggleLoopBtn.textContent = `🔁 ループ: ${isLooping ? 'ON' : 'OFF'}`;
+    };
+
+    // トラック保存
+    function saveTracks() {
+      tracks = Array.from(document.querySelectorAll('.track')).map(t => {
+        const audio = t.querySelector('audio');
+        return {
+          file: audio.dataset.file || null,
+          name: audio.dataset.name || '曲をアップロード',
+          currentTime: audio.currentTime || 0
+        };
+      });
+      localStorage.setItem('retro-player-tracks', JSON.stringify(tracks));
+    }
+
+    // 初期表示
+    addTrackBtn.onclick = addTrack;
+  </script>
+</body>
+</html>   

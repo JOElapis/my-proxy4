@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>安全なiframeで外部サイトを開く</title>
+</head>
+<body>
+
+    <h1>外部サイトを安全に開く</h1>
+    <p>開きたいURLを入力し、ボタンをクリックしてください。新しいタブで外部サイトが安全なサンドボックス化されたiframe内に表示されます。<br>けど、大手サイト(google,bingとか)は拒否するんで、あくまで履歴なしということで。ブロックは貫通しません。今のURLの/no-historyを消して表示すれば、このサイトを履歴無しで楽しめます！</p>
+
+    <div>
+        <input type="url" id="urlInput" placeholder="https://www.example.com" size="50">
+        <button id="openButton">外部サイトを開く</button>
+    </div>
+
+    <script>
+        document.getElementById('openButton').addEventListener('click', function() {
+            var urlToOpen = document.getElementById('urlInput').value;
+
+            // URLが入力されていない場合は処理を中断
+            if (!urlToOpen) {
+                alert("開きたいURLを入力してください。");
+                return;
+            }
+
+            // 新しいタブをabout:blankで開く
+            var newTab = window.open('about:blank', '_blank');
+            
+            if (newTab) {
+                // iframeを作成
+                var iframe = newTab.document.createElement('iframe');
+                
+                // セキュリティを高めるためのsandbox属性
+                // allow-forms: フォーム送信を許可
+                // allow-scripts: スクリプト実行を許可
+                // allow-same-origin: 同一オリジンからのアクセスを許可
+                iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
+
+                // noreferrer を設定して、新規ウィンドウのopenerプロパティをnullに設定
+                iframe.setAttribute('referrerpolicy', 'no-referrer');
+                
+                // iframeのスタイル設定
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+
+                // iframeにユーザーが指定したサイトを読み込ませる
+                iframe.src = urlToOpen;
+                
+                // iframeを新しいタブのbodyに追加
+                newTab.document.body.style.margin = '0';
+                newTab.document.body.appendChild(iframe);
+            }
+        });
+    </script>
+
+</body>
+</html>

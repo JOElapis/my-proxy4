@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>無料音楽プレイヤー</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      width: 70%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background: #2980b9;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #3498db;
+    }
+    #player {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 640px;
+      height: 360px;
+      border: none;
+    }
+    .info {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 世界の曲を検索して再生</h1>
+  <p>YouTubeの動画を使って再生（無料・登録不要）</p>
+
+  <input type="text" id="searchInput" placeholder="曲名やアーティストを入力（例: レディー・ガガ ポーカーフェイス）" />
+  <button onclick="searchMusic()">検索して再生</button>
+
+  <iframe id="player" frameborder="0" allowfullscreen></iframe>
+
+  <p class="info">
+    ※ 音源はYouTubeより提供されます。<br>
+    全曲再生は可能ですが、広告が入る場合があります。<br>
+    コピーライト保護のため、一部の曲は再生できない場合があります。
+  </p>
+
+  <script>
+    function searchMusic() {
+      const query = encodeURIComponent(document.getElementById("searchInput").value + " audio");
+      const videoUrl = `https://www.youtube.com/embed?listType=search&list=${query}`;
+      document.getElementById("player").src = videoUrl;
+    }
+  </script>
+</body>
+</html>

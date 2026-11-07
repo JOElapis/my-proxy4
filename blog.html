@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>jw</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --card-bg: #1e1e1e;
+      --accent: #bb86fc;
+      --border: #333;
+      --hover: #2d2d2d;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="light"] {
+      --bg: #f9f9f9;
+      --text: #333;
+      --card-bg: #fff;
+      --accent: #6200ee;
+      --border: #ddd;
+      --hover: #f0f0f0;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      color: var(--accent);
+    }
+
+    .menu-btn {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+    }
+
+    .bar {
+      width: 25px;
+      height: 3px;
+      background: var(--text);
+      transition: var(--transition);
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: var(--card-bg);
+      padding: 2rem;
+      transition: right 0.4s ease;
+      z-index: 1000;
+      border-left: 1px solid var(--border);
+    }
+
+    .sidebar.open {
+      right: 0;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+      z-index: 999;
+    }
+
+    .overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .search-filter {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      padding: 0.7rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      border-radius: 4px;
+      flex: 1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px var(--shadow);
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .card h3 {
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-bottom: 0.5rem;
+    }
+
+    .card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <h1>ブログ一覧</h1>
+    <div class="menu-btn" id="menuBtn">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+  </header>
+
+  <div class="sidebar" id="sidebar">
+    <h2>Menu</h2>
+    <ul>
+      <li><a href="index.html">ホーム</a></li>
+      <li><a href="#blog">ブログ一覧</a></li>
+      <li><a href="post.html">記事例</a></li>
+    </ul>
+    <button class="theme-toggle" id="themeToggle">ライトモード</button>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main>
+    <div class="search-filter">
+      <input type="text" id="searchInput" placeholder="キーワードで検索..." />
+      <select id="categoryFilter">
+        <option value="">すべてのカテゴリ</option>
+        <option value="tech">テクノロジー</option>
+        <option value="design">デザイン</option>
+        <option value="life">ライフスタイル</option>
+      </select>
+    </div>
+
+    <div class="grid" id="blogGrid">
+      <!-- 動的に生成される -->
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 My Blog. All rights reserved.
+  </footer>
+
+  <script>
+    const posts = [
+      { title: "HTMLとCSSの基本", category: "tech", desc: "初心者向けに解説", link: "post.html" },
+      { title: "ダークモードの実装", category: "tech", desc: "CSS変数とJSで", link: "post.html" },
+      { title: "美しいグリッドレイアウト", category: "design", desc: "CSS Gridの使い方", link: "post.html" },
+      { title: "毎日のルーティン", category: "life", desc: "生産性を上げる方法", link: "post.html" },
+    ];
+
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const blogGrid = document.getElementById('blogGrid');
+
+    // メニュー
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    });
+
+    // テーマ
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    body.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? 'ライトモード' : 'ダークモード';
+    themeToggle.addEventListener('click', () => {
+      const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? 'ライトモード' : 'ダークモード';
+    });
+
+    // ブログカード生成
+    function renderPosts(filteredPosts) {
+      blogGrid.innerHTML = '';
+      filteredPosts.forEach(post => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="https://picsum.photos/300/150?random=${Math.random()}" alt="${post.title}" />
+          <div class="card-content">
+            <h3>${post.title}</h3>
+            <p>${post.desc}</p>
+            <a href="${post.link}">続きを読む</a>
+          </div>
+        `;
+        blogGrid.appendChild(card);
+      });
+    }
+
+    // 検索・フィルター
+    function filterPosts() {
+      const query = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+      const filtered = posts.filter(post => {
+        const matchesSearch = post.title.toLowerCase().includes(query) || post.desc.toLowerCase().includes(query);
+        const matchesCategory = category === '' || post.category === category;
+        return matchesSearch && matchesCategory;
+      });
+      renderPosts(filtered);
+    }
+
+    searchInput.addEventListener('input', filterPosts);
+    categoryFilter.addEventListener('change', filterPosts);
+
+    // 初期表示
+    renderPosts(posts);
+  </script>
+</body>
+</html>   
